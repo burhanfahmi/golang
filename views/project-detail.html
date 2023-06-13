@@ -39,7 +39,7 @@
         {{.id}}
         <div class="container">
             <div class="row">
-                <h2 class="text-center ">{{.Title}}</h2>
+                <h2 class="text-center my-5">{{.Blog.Title}}</h2>
                 <div class="col my-4 col-md-7">
                     <div class="card imgCardDetail">
                         <img src="/public/image/blog-img.png" class="card-img-top" >
@@ -52,12 +52,20 @@
                     <h5>Technologies</h5>
                     <div class="row">
                         <div class="col">
+                            {{if .Blog.IconNode}}
                             <p><i class="fa-brands fa-node"></i> Node-js </p>
+                            {{end}}
+                            {{if .Blog.IconReact}}
                             <p><i class="fa-brands fa-react"></i> React-js</p>
+                            {{end}}
                         </div>
                         <div class="col">
+                            {{if .Blog.IconJavascript}}
                             <p><i class="fa-brands fa-js"></i> JavaScript</p>
+                            {{end}}
+                            {{if .Blog.IconGolang}}
                             <p><i class="fa-brands fa-golang"></i> Golang</p>
+                            {{end}}
                         </div>
                     </div>
                 </div>
@@ -65,7 +73,7 @@
             <div class="row">
                 <div class="col">
                     <h6>Description</h6>
-                    <p class="text-justify-center">{{.Content}}</p>
+                    <p class="text-justify-center">{{.Blog.Description}}</p>
                 </div>
             </div>
         </div>
