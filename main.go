@@ -1,6 +1,8 @@
 package main
 
 import (
+	"b47s1/connection"
+	"context"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -15,9 +17,10 @@ import (
 // nama dari strukturnya  adalah blog atau sama dengan nama kelas di java script
 // yang membangun dari object/properties
 type Blog struct {
+	ID             int
 	Title          string
-	startDate      string
-	endDate        string
+	StartDate      string
+	EndDate        string
 	Description    string
 	Duration       string
 	IconNode       bool
@@ -30,32 +33,32 @@ type Blog struct {
 // bisa disebut dummy data / menampung data sementara
 // data-data yang ditampung yang kemudian data yang diisi harus sesuai dengan tipe data yang ditelah dibangun  pada strucknya
 var dataBlog = []Blog{
-	{
-		Title:          "Dumbways Ciputat",
-		Description:    "Lorem Ipsum",
-		startDate:      "08/06/2023",
-		endDate:        "08/07/2023",
-		Duration:       "1 Bulan",
-		IconNode:       true,
-		IconReact:      true,
-		IconJavascript: true,
-		IconGolang:     true,
-	},
-	{
-		Title:          "Dumbways Depok",
-		Description:    "Semangat Cuy",
-		startDate:      "08/06/2023",
-		endDate:        "08/07/2023",
-		Duration:       "1 Bulan",
-		IconNode:       true,
-		IconReact:      true,
-		IconJavascript: false,
-		IconGolang:     false,
-	},
+	// {
+	// 	Title:          "Dumbways Ciputat",
+	// 	Description:    "Lorem Ipsum",
+	// 	StartDate:      "08/06/2023",
+	// 	EndDate:        "08/07/2023",
+	// 	Duration:       "1 Bulan",
+	// 	IconNode:       true,
+	// 	IconReact:      true,
+	// 	IconJavascript: true,
+	// 	IconGolang:     true,
+	// },
+	// {
+	// 	Title:          "Dumbways Depok",
+	// 	Description:    "Semangat Cuy",
+	// 	StartDate:      "08/06/2023",
+	// 	EndDate:        "08/07/2023",
+	// 	Duration:       "1 Bulan",
+	// 	IconNode:       true,
+	// 	IconReact:      true,
+	// 	IconJavascript: false,
+	// 	IconGolang:     false,
+	// },
 }
 
 func main() {
-
+	connection.DatabaseConnect()
 	e := echo.New()
 
 	// e = echo package
@@ -66,7 +69,7 @@ func main() {
 
 	//routing
 	// GET
-	e.GET("/hello", helloWorld)
+
 	e.GET("/home", home)
 	e.GET("/contact", contact)
 	e.GET("/project-detail/:id", projectDetail)
@@ -80,11 +83,20 @@ func main() {
 	e.Logger.Fatal(e.Start("localhost:5000"))
 }
 
-func helloWorld(c echo.Context) error {
-	return c.String(http.StatusOK, "Hello world")
-}
-
 func home(c echo.Context) error {
+	data, _ := connection.Conn.Query(context.Background(), "SELECT id, title, Startdate, enddate,duration, decription, nodejs, reactjs, javascript, golang FROM tb_blog")
+
+	dataBlog = []Blog{}
+	for data.Next() {
+		var each = Blog{}
+
+		err := data.Scan(&each.ID, &each.Title, &each.StartDate, &each.EndDate, &each.Duration, &each.Description, &each.IconNode, &each.IconReact, &each.IconJavascript, &each.IconGolang)
+		if err != nil {
+			fmt.Println(err.Error())
+			return c.JSON(http.StatusInternalServerError, map[string]string{"Message": err.Error()})
+		}
+		dataBlog = append(dataBlog, each)
+	}
 	blogs := map[string]interface{}{
 		"Blogs": dataBlog,
 	}
@@ -120,8 +132,8 @@ func projectDetail(c echo.Context) error {
 			BlogDetail = Blog{
 				Title:          data.Title,
 				Description:    data.Description,
-				startDate:      data.startDate,
-				endDate:        data.endDate,
+				StartDate:      data.StartDate,
+				EndDate:        data.EndDate,
 				Duration:       data.Duration,
 				IconNode:       data.IconNode,
 				IconReact:      data.IconReact,
@@ -153,9 +165,9 @@ func addProject(c echo.Context) error {
 func addBlog(c echo.Context) error {
 	title := c.FormValue("input-title")
 	description := c.FormValue("input-textarea")
-	startDate := c.FormValue("input-start-date")
-	endDate := c.FormValue("input-end-date")
-	duration := Duration(startDate, endDate)
+	StartDate := c.FormValue("input-start-date")
+	EndDate := c.FormValue("input-end-date")
+	duration := Duration(StartDate, EndDate)
 	nodeJs := c.FormValue("node")
 	javaScript := c.FormValue("javascript")
 	reactJs := c.FormValue("react")
@@ -163,8 +175,8 @@ func addBlog(c echo.Context) error {
 
 	println("Tittle : " + title)
 	println("Description : " + description)
-	println("StartDate : " + startDate)
-	println("EndDate :" + endDate)
+	println("StartDate : " + StartDate)
+	println("EndDate :" + EndDate)
 	println("Duration :", duration)
 	println("IconNode : " + nodeJs)
 	println("IconReact : " + reactJs)
@@ -175,8 +187,8 @@ func addBlog(c echo.Context) error {
 	var newBlog = Blog{
 		Title:          title,
 		Description:    description,
-		startDate:      time.Now().String(),
-		endDate:        time.Now().String(),
+		StartDate:      time.Now().String(),
+		EndDate:        time.Now().String(),
 		Duration:       duration,
 		IconNode:       (nodeJs == "nodejs"),
 		IconJavascript: (javaScript == "javascript"),
@@ -210,9 +222,9 @@ func editProject(edit echo.Context) error {
 	dataBlog = append(dataBlog[:id], dataBlog[id+1:]...)
 	return edit.Redirect(http.StatusMovedPermanently, "/add-project")
 }
-func Duration(startDate, endDate string) string {
-	startTime, _ := time.Parse("2006-01-02", startDate)
-	endTime, _ := time.Parse("2006-01-02", endDate)
+func Duration(StartDate, EndDate string) string {
+	startTime, _ := time.Parse("2006-01-02", StartDate)
+	endTime, _ := time.Parse("2006-01-02", EndDate)
 
 	durationTime := int(endTime.Sub(startTime).Hours())
 	durationDays := durationTime / 24

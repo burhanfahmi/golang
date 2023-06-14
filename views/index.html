@@ -107,24 +107,14 @@
 
                         </div>
                         <div>
-                            
+                            <p >Dari: {{$data.StartDate}}</p>
+                            <p >Sampai: {{$data.EndDate}}</p>
                             <p class="durasi">Durasi: {{$data.Duration}}</p>
                             <p class="">{{$data.Description}}</p>
 
                         </div>
                         <div class="gep-3">
-                            {{if $data.IconNode}}
-                            <i class="fa-brands fa-node-js fs-3 p-2"></i>
-                            {{end}}
-                            {{if $data.IconReact}}
-                            <i class="fa-brands fa-react fs-3 p-2"></i>
-                            {{end}}
-                            {{if $data.IconJavascript}}
-                            <i class="fa-brands fa-js fs-3 p-2"></i>
-                            {{end}}
-                            {{if $data.IconGolang}}
-                            <i class="fa-brands fa-golang fs-3 p-2"></i>
-                            {{end}}
+                            
 
                         </div>
                     </div>
